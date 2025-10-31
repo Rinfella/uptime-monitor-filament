@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Models\Monitor;
+use App\Notifications\UptimeCheckFailed;
 use GuzzleHttp\Exception\RequestException;
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Support\Facades\Http;
@@ -12,14 +13,6 @@ use App\Notifications\UptimeCheckRecovered;
 
 class UptimeCheckService
 {
-    /**
-     * Create a new class instance.
-     */
-    public function __construct()
-    {
-        //
-    }
-
     public function checkMonitor(Monitor $monitor): array
     {
         $startTime = microtime(true);
@@ -132,21 +125,47 @@ class UptimeCheckService
             'consecutive_failures' => $consecutiveFailures,
         ]);
 
-        if (($wasUp || $consecutiveFailures >= $monitor->max_consecutive_failures) && $monitor->notify_on_failure) {
+        //NOTE: send failure notification only if:
+        // - the monitor was previously up, or
+        // - the number of consecutive failures has reached the threshold
+
+        $shouldNotify = $monitor->notify_on_failure && (
+            $wasUp || $consecutiveFailures >= $monitor->max_consecutive_failures
+        );
+
+        if ($shouldNotify) {
             // Trigger failure notification
             $this->sendFailureNotification($monitor);
         }
 
-        Log::warning("Monitor {$monitor->name} is down. Error: {$result['error_message']}");
+        Log::warning("Monitor {$monitor->name} is down. Consecutive failures: {$consecutiveFailures}. Error: {$result['error_message']}");
     }
 
     private function sendFailureNotification(Monitor $monitor): void
     {
         try {
+            Log::info("Sending failure notification for monitor: {$monitor->name}");
+
+            Notification::route('telegram', config('services.telegram.chat_id'))
+                ->notify(new UptimeCheckFailed($monitor));
+
+            Log::info("Failure notification sent successfully for monitor: {$monitor->name}");
+        } catch (\Exception $e) {
+            Log::error("Failed to send failure notification for {$monitor->name}: " . $e->getMessage());
+        }
+    }
+
+    public function sendRecoveryNotification(Monitor $monitor): void
+    {
+        try {
+            Log::info("Sending recovery notification for monitor: {$monitor->name}");
+
             Notification::route('telegram', config('services.telegram.chat_id'))
                 ->notify(new UptimeCheckRecovered($monitor));
+
+            Log::info("Recovery notification sent successfully for monitor: {$monitor->name}");
         } catch (\Exception $e) {
-            Log::error("Failed to send notification for {$monitor->name}: " . $e->getMessage());
+            Log::error("Failed to send recovery notification for {$monitor->name}: " . $e->getMessage());
         }
     }
 
@@ -167,15 +186,5 @@ class UptimeCheckService
         Log::info("Completed uptime checks for " . count($results) . " monitors.");
 
         return $results;
-    }
-
-    public function sendRecoveryNotification(Monitor $monitor): void
-    {
-        try {
-            Notification::route('telegram', config('services.telegram.chat_id'))
-                ->notify(new UptimeCheckRecovered($monitor));
-        } catch (\Exception $e) {
-            Log::error("Failed to send notification for {$monitor->name}: " . $e->getMessage());
-        }
     }
 }
