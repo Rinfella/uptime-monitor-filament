@@ -41,6 +41,7 @@ class TelegramTestMessage extends Notification
         $message .= "**From:**" . config('app.name') . "\n";
 
         return TelegramMessage::create()
+            ->token(config('services.telegram.bot_token'))
             ->to(config('services.telegram.chat_id'))
             ->content($message)
             ->options([

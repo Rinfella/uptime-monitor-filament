@@ -57,6 +57,7 @@ class UptimeCheckFailed extends Notification
         $message .= "\nPlease check the server immediately.";
 
         return TelegramMessage::create()
+            ->token(config('services.telegram.bot_token'))
             ->to(config('services.telegram.chat_id'))
             ->content($message)
             ->options([

@@ -53,6 +53,7 @@ class UptimeCheckRecovered extends Notification
         $message .= "\nYour site is back online..";
 
         return TelegramMessage::create()
+            ->token(config('services.telegram.bot_token'))
             ->to(config('services.telegram.chat_id'))
             ->content($message)
             ->options([
