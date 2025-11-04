@@ -9,9 +9,9 @@ use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Notification;
-use App\Notifications\UptimeCheckRecovered;
+use App\Notifications\UptimeCheckSuccess;
 
-class UptimeCheckService
+class HeartbeatCheckService
 {
     public function checkMonitor(Monitor $monitor): array
     {
@@ -182,7 +182,7 @@ class UptimeCheckService
             Log::info("Sending recovery notification for monitor: {$monitor->name}");
 
             Notification::route('telegram', config('services.telegram.chat_id'))
-                ->notify(new UptimeCheckRecovered($monitor));
+                ->notify(new UptimeCheckSuccess($monitor));
 
             Log::info("Recovery notification sent successfully for monitor: {$monitor->name}");
         } catch (\Exception $e) {
@@ -196,7 +196,7 @@ class UptimeCheckService
     private function recordCheckHistory(Monitor $monitor, array $result): void
     {
         try {
-            UptimeCheck::create([
+            HeartbeatCheckService::updateOrCreate([
                 'monitor_id' => $monitor->id,
                 'status' => $result['is_up'] ? 'up' : 'down',
                 'response_time' => $result['response_time'],

@@ -34,7 +34,8 @@ class MonitorsTable
                         return $state;
                     }),
 
-                TextColumn::make('status')
+                TextColumn::make('current_status')
+                    ->label('Status')
                     ->badge()
                     ->sortable()
                     ->colors([
@@ -49,7 +50,7 @@ class MonitorsTable
                     ])
                     ->sortable(),
 
-                TextColumn::make('response_time')
+                TextColumn::make('latestHeartbeat.response_time')
                     ->label('Response Time')
                     ->suffix(' ms')
                     ->sortable()
@@ -61,7 +62,7 @@ class MonitorsTable
                         default => 'danger',
                     }),
 
-                TextColumn::make('http_status_codes')
+                TextColumn::make('latestHeartbeat.http_status_code')
                     ->label('HTTP Status')
                     ->sortable()
                     ->placeholder('N/A')
@@ -75,7 +76,7 @@ class MonitorsTable
                         default => 'gray',
                     }),
 
-                TextColumn::make('last_checked_at')
+                TextColumn::make('latestHeartbeat.checked_at')
                     ->label('Last Checked')
                     ->dateTime('M j, Y H:i')
                     ->sortable()

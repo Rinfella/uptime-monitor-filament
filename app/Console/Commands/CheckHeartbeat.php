@@ -3,18 +3,18 @@
 namespace App\Console\Commands;
 
 use App\Models\Monitor;
-use App\Services\UptimeCheckService;
+use App\Services\HeartbeatCheckService;
 use Illuminate\Console\Command;
 use Illuminate\Support\Str;
 
 class CheckUptime extends Command
 {
-    protected $signature = 'uptime:check { --monitor_id= : ID of a specific monitor to check }';
-    protected $description = 'Check uptime of all listed monitors';
+    protected $signature = 'heartbeats:check { --monitor_id= : ID of a specific monitor to check }';
+    protected $description = 'Check heartbeats of all active monitors';
 
-    public function handle(UptimeCheckService $uptimeCheckService): int
+    public function handle(HeartbeatCheckService $heartbeatCheckService): int
     {
-        $this->info('Starting uptime checks..');
+        $this->info('Starting heartbeat checks..');
 
         if ($monitorId = $this->option('monitor_id')) {
             $monitor = Monitor::find($monitorId);
@@ -24,15 +24,14 @@ class CheckUptime extends Command
                 return self::FAILURE;
             }
 
-            $this->info('Checking monitor: . {$monitor->name}');
-            $result = $uptimeCheckService->checkMonitor($monitor);
+            $result = $heartbeatCheckService->checkMonitor($monitor);
 
             $this->displayResult($monitor->name, $result);
             return self::SUCCESS;
         }
 
         // Check all monitors
-        $results = $uptimeCheckService->checkAllMonitors();
+        $results = $heartbeatCheckService->checkAllMonitors();
 
         if (empty($results)) {
             $this->warn('No monitors found that need checking.');

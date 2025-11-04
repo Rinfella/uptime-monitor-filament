@@ -15,15 +15,12 @@ class UptimeCheckFailed extends Notification
     /**
      * Create a new notification instance.
      */
-    public function __construct(public Monitor $monitor)
-    {
-        //
-    }
+    public function __construct(
+        public Monitor $monitor
+    ) {}
 
     /**
      * Get the notification's delivery channels.
-     *
-     * @return array<int, string>
      */
     public function via($notifiable): array
     {
@@ -35,23 +32,25 @@ class UptimeCheckFailed extends Notification
      */
     public function toTelegram($notifiable): TelegramMessage
     {
-        $downtime = $this->monitor->last_down_at
-            ? $this->monitor->last_down_at->diffForHumans()
-            : 'Unknown';
+        $responseTime = $this->monitor->getResponseTime();
+        $errorMessage = $this->monitor->getErrorMessage();
+        $statusCode = $this->monitor->getHttpStatusCode();
 
         $message = "🔴 **SITE DOWN ALERT**\n\n";
         $message .= "**Site:** {$this->monitor->name}\n";
         $message .= "**URL:** {$this->monitor->url}\n";
         $message .= "**Status:** Down\n";
-        $message .= "**Downtime:** {$downtime}\n";
         $message .= "**Consecutive Failures:** {$this->monitor->consecutive_failures}\n";
 
-        if ($this->monitor->error_message) {
-            $message .= "**Error:** " . substr($this->monitor->error_message, 0, 200) . "\n";
+        if ($errorMessage) {
+            $errorPreview = strlen($errorMessage) > 200
+                ? substr($errorMessage, 0, 200) . '...'
+                : $errorMessage;
+            $message .= "**Error Message:** {$errorPreview}\n";
         }
 
-        if ($this->monitor->response_time) {
-            $message .= "**Response Time:** {$this->monitor->response_time}ms\n";
+        if ($responseTime) {
+            $message .= "**Response Time:** {$responseTime}ms\n";
         }
 
         $message .= "\nPlease check the server immediately.";
@@ -64,17 +63,5 @@ class UptimeCheckFailed extends Notification
                 'parse_mode' => 'Markdown',
                 'disable_web_page_preview' => true,
             ]);
-    }
-
-    /**
-     * Get the array representation of the notification.
-     *
-     * @return array<string, mixed>
-     */
-    public function toArray(object $notifiable): array
-    {
-        return [
-            //
-        ];
     }
 }
