@@ -18,26 +18,17 @@ class MonitorsTable
         return $table
             ->columns([
                 TextColumn::make('name')
+                    ->label('Monitor Name')
                     ->searchable()
                     ->sortable()
-                    ->weight('medium'),
+                    ->weight('medium')
+                    ->description(fn($record) => $record->url),
 
-                TextColumn::make('url')
-                    ->label('URL')
-                    ->searchable()
-                    ->limit(50)
-                    ->tooltip(function (TextColumn $column): ?string {
-                        $state = $column->getState();
-                        if (strlen($state) <= 50) {
-                            return null;
-                        }
-                        return $state;
-                    }),
-
-                TextColumn::make('current_status')
+                TextColumn::make('status')
                     ->label('Status')
                     ->badge()
                     ->sortable()
+                    ->formatStateUsing(fn($state) => strtoupper($state))
                     ->colors([
                         'success' => 'up',
                         'danger' => 'down',
@@ -52,36 +43,36 @@ class MonitorsTable
 
                 TextColumn::make('latestHeartbeat.response_time')
                     ->label('Response Time')
-                    ->suffix(' ms')
                     ->sortable()
                     ->placeholder('N/A')
                     ->color(fn($state) => match (true) {
                         $state === null => 'gray',
-                        $state < 200 => 'success',
+                        $state < 2000 => 'success',
                         $state < 5000 => 'warning',
                         default => 'danger',
+                    })
+                    ->icon(fn($state) => match (true) {
+                        $state === null => 'heroicon-m-question-mark-circle',
+                        $state < 2000 => 'heroicon-m-bolt',
+                        $state < 5000 => 'heroicon-m-clock',
+                        default => 'heroicon-m-exclamation-triangle',
                     }),
 
-                TextColumn::make('latestHeartbeat.http_status_code')
-                    ->label('HTTP Status')
-                    ->sortable()
-                    ->placeholder('N/A')
-                    ->badge()
-                    ->color(fn($state) => match (true) {
-                        $state === null => 'gray',
-                        $state >= 200 && $state < 300 => 'success',
-                        $state >= 300 && $state < 400 => 'info',
-                        $state >= 400 && $state < 500 => 'warning',
-                        $state >= 500 => 'danger',
-                        default => 'gray',
-                    }),
+                TextColumn::make('check_interval_minutes')
+                    ->label('Check Interval')
+                    ->suffix(' min(s)'),
 
                 TextColumn::make('latestHeartbeat.checked_at')
                     ->label('Last Checked')
                     ->dateTime('M j, Y H:i')
                     ->sortable()
                     ->placeholder('Never')
-                    ->description(fn($record) => $record->last_checked_at ? $record->last_checked_at->diffForHumans() : null),
+                    ->description(
+                        fn($record) =>
+                        $record->lastHeartbeat?->checked_at
+                            ? $record->lastHeartbeat->checked_at->diffForHumans()
+                            : null
+                    ),
 
                 TextColumn::make('check_interval_minutes')
                     ->label('Check Interval')

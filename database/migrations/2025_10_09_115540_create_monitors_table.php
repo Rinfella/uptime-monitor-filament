@@ -15,12 +15,17 @@ return new class extends Migration
             $table->id();
             $table->string('name');
             $table->string('url');
+            $table->boolean('is_active')->default(true);
             $table->integer('check_interval_minutes')->default(2);
+            $table->integer('max_consecutive_failures')->default(3);
+            $table->integer('consecutive_failures')->default(0);
+            $table->enum('status', ['up', 'down', 'unknown'])->default('unknown');
             $table->boolean('notify_on_failure')->default(true);
             $table->boolean('notify_on_recovery')->default(true);
-            $table->integer('consecutive_failures')->default(0);
-            $table->boolean('is_active')->default(true);
             $table->timestamps();
+
+            $table->index('status');
+            $table->index('is_active');
         });
     }
 

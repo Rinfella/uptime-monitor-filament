@@ -23,7 +23,7 @@ return new class extends Migration
 
 
             $table->index(['monitor_id', 'status']);
-            $table->index('monitor_id', 'checked_at');
+            $table->index(['monitor_id', 'checked_at']);
         });
     }
 

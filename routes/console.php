@@ -9,6 +9,6 @@ Schedule::command('heartbeats:check')
 
 Schedule::command('heartbeats:cleanup --days=60')
     ->weekly()
-    ->onlyOnSundays()
+    ->sundays()
     ->at('03:00')
     ->runInBackground();

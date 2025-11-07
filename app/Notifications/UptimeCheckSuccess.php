@@ -19,7 +19,8 @@ class UptimeCheckSuccess extends Notification
      */
     public function __construct(
         public Monitor $monitor,
-        public bool $wasDown = false
+        public bool $isRecovery = false,
+        public bool $isInitialCheck = false,
     ) {}
 
 
@@ -38,10 +39,12 @@ class UptimeCheckSuccess extends Notification
      */
     public function toTelegram($notifiable): TelegramMessage
     {
-        $responseTime = $this->monitor->getResponseTime();
-        $statusCode = $this->monitor->getHttpStatusCode();
+        $responseTime = $this->monitor->response_time;
+        $statusCode = $this->monitor->http_status_code;
 
-        $message = "🟢 **SITE IS UP**\n\n";
+        $title = $this->isInitialCheck ? '✅ NEW MONITOR ADDED' : '🟢 SITE IS UP';
+
+        $message = "**{$title}**\n\n";
         $message .= "**Site:** {$this->monitor->name}\n";
         $message .= "**URL:** {$this->monitor->url}\n";
         $message .= "**Status:** UP\n";
@@ -54,7 +57,9 @@ class UptimeCheckSuccess extends Notification
             $message .= "**HTTP Status Code:** {$statusCode}\n";
         }
 
-        if ($this->wasDown) {
+        if ($this->isInitialCheck) {
+            $message .= "\nThis monitor has been successfully added and its initial status is UP.";
+        } elseif ($this->isRecovery) {
             $message .= "\nThe site has recovered and is now back online.";
         } else {
             $message .= "\nThe site is operational.";

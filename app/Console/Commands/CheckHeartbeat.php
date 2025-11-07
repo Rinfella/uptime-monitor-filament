@@ -7,7 +7,7 @@ use App\Services\HeartbeatCheckService;
 use Illuminate\Console\Command;
 use Illuminate\Support\Str;
 
-class CheckUptime extends Command
+class CheckHeartbeat extends Command
 {
     protected $signature = 'heartbeats:check { --monitor_id= : ID of a specific monitor to check }';
     protected $description = 'Check heartbeats of all active monitors';

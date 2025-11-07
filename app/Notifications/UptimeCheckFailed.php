@@ -16,7 +16,8 @@ class UptimeCheckFailed extends Notification
      * Create a new notification instance.
      */
     public function __construct(
-        public Monitor $monitor
+        public Monitor $monitor,
+        public bool $isInitialCheck = false,
     ) {}
 
     /**
@@ -32,15 +33,20 @@ class UptimeCheckFailed extends Notification
      */
     public function toTelegram($notifiable): TelegramMessage
     {
-        $responseTime = $this->monitor->getResponseTime();
-        $errorMessage = $this->monitor->getErrorMessage();
-        $statusCode = $this->monitor->getHttpStatusCode();
+        $responseTime = $this->monitor->response_time;
+        $errorMessage = $this->monitor->error_message;
+        $statusCode = $this->monitor->http_status_code;
 
-        $message = "🔴 **SITE DOWN ALERT**\n\n";
+        $title = $this->isInitialCheck ? '❌ NEW MONITOR ADDED' : '🔴 SITE DOWN ALERT';
+
+        $message = "**{$title}**\n\n";
         $message .= "**Site:** {$this->monitor->name}\n";
         $message .= "**URL:** {$this->monitor->url}\n";
-        $message .= "**Status:** Down\n";
-        $message .= "**Consecutive Failures:** {$this->monitor->consecutive_failures}\n";
+        $message .= "**Status Code:** DOWN {$statusCode}\n";
+
+        if (!$this->isInitialCheck) {
+            $message .= "**Consecutive Failures:** {$this->monitor->consecutive_failures}\n";
+        }
 
         if ($errorMessage) {
             $errorPreview = strlen($errorMessage) > 200
@@ -53,7 +59,11 @@ class UptimeCheckFailed extends Notification
             $message .= "**Response Time:** {$responseTime}ms\n";
         }
 
-        $message .= "\nPlease check the server immediately.";
+        if ($this->isInitialCheck) {
+            $message .= "\nThis monitor has been added, but its initial status is DOWN.";
+        } else {
+            $message .= "\nPlease check the server immediately.";
+        }
 
         return TelegramMessage::create()
             ->token(config('services.telegram.bot_token'))

@@ -16,7 +16,7 @@ class MonitorSeeder extends Seeder
             [
                 'name' => 'Example Monitor',
                 'url' => 'https://example.com',
-                'check_interval_minutes' => 5,
+                'check_interval_minutes' => 1,
                 'notify_on_failure' => true,
                 'notify_on_recovery' => true,
                 'consecutive_failures' => 0,
@@ -24,9 +24,9 @@ class MonitorSeeder extends Seeder
             ],
 
             [
-                'name' => 'Example2 Monitor',
-                'url' => 'https://example2.com',
-                'check_interval_minutes' => 10,
+                'name' => 'Darbu',
+                'url' => 'https://darbu.in',
+                'check_interval_minutes' => 1,
                 'notify_on_failure' => false,
                 'notify_on_recovery' => true,
                 'consecutive_failures' => 0,
@@ -36,11 +36,11 @@ class MonitorSeeder extends Seeder
             [
                 'name' => 'Example Error Monitor',
                 'url' => 'https://lerisa.in',
-                'check_interval_minutes' => 2,
+                'check_interval_minutes' => 1,
                 'notify_on_failure' => true,
                 'notify_on_recovery' => false,
                 'consecutive_failures' => 0,
-                'is_active' => false,
+                'is_active' => true,
             ]
 
         ]);
