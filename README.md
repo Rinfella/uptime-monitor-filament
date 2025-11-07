@@ -76,6 +76,8 @@ Access the Filament admin panel by navigating to `/admin` in your browser. From 
 - Modify default dashboard to show Monitor and Heartbeat stats.
 - Add more notification channels (e.g., email, Slack).
 - Implement user authentication and roles for multi-user support.
+- Monitor not only HTTP(S) but also other protocols (e.g., ping, TCP).
+- Make the protocols selectable and create prefixes for the heartbeat names (e.g., `http://` or `smb://`).
 
 
 ## Contributing
