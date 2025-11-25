@@ -2,6 +2,8 @@
 
 namespace App\Filament\Resources\Monitors\Tables;
 
+use App\Models\Heartbeat;
+use Illuminate\Database\Eloquent\Builder;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
@@ -43,8 +45,16 @@ class MonitorsTable
 
                 TextColumn::make('latestHeartbeat.response_time')
                     ->label('Response Time')
-                    ->sortable()
                     ->placeholder('N/A')
+                    ->sortable(query: function (Builder $query, string $direction): Builder {
+                        return $query->orderBy(
+                            Heartbeat::select('response_time')
+                                ->whereColumn('monitor_id', 'monitors.id')
+                                ->latest('checked_at')
+                                ->limit(1),
+                            $direction
+                        );
+                    })
                     ->color(fn($state) => match (true) {
                         $state === null => 'gray',
                         $state < 2000 => 'success',
@@ -65,14 +75,22 @@ class MonitorsTable
                 TextColumn::make('latestHeartbeat.checked_at')
                     ->label('Last Checked')
                     ->dateTime('M j, Y H:i')
-                    ->sortable()
                     ->placeholder('Never')
                     ->description(
                         fn($record) =>
-                        $record->lastHeartbeat?->checked_at
-                            ? $record->lastHeartbeat->checked_at->diffForHumans()
+                        $record->latestHeartbeat?->checked_at
+                            ? $record->latestHeartbeat->checked_at->diffForHumans()
                             : null
-                    ),
+                    )
+                    ->sortable(query: function (Builder $query, string $direction): Builder {
+                        return $query->orderBy(
+                            Heartbeat::select('checked_at')
+                                ->whereColumn('monitor_id', 'monitors.id')
+                                ->latest('checked_at')
+                                ->limit(1),
+                            $direction
+                        );
+                    }),
 
                 TextColumn::make('check_interval_minutes')
                     ->label('Check Interval')
