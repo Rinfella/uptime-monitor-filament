@@ -19,8 +19,17 @@ class HeartbeatsTable
             ->columns([
                 TextColumn::make('monitor.name')
                     ->searchable(),
+
                 TextColumn::make('status')
-                    ->badge(),
+                    ->badge()
+                    ->sortable()
+                    ->color(fn($state) => match ($state) {
+                        'up' => 'success',
+                        'down' => 'danger',
+                        'unknown' => 'warning',
+                        default => 'gray',
+                    }),
+
                 TextColumn::make('http_status_code')
                     ->label('HTTP Status')
                     ->sortable()
@@ -38,17 +47,18 @@ class HeartbeatsTable
                 TextColumn::make('response_time')
                     ->numeric()
                     ->sortable(),
+
                 TextColumn::make('checked_at')
                     ->dateTime()
                     ->sortable(),
-                TextColumn::make('created_at')
-                    ->dateTime()
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
+
                 TextColumn::make('updated_at')
                     ->dateTime()
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
+                    ->sortable(),
+
+                TextColumn::make('created_at')
+                    ->dateTime()
+                    ->sortable(),
             ])
             ->filters([
                 //

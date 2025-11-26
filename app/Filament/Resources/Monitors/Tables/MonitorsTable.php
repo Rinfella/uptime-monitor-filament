@@ -10,11 +10,8 @@ use Filament\Actions\EditAction;
 use Filament\Actions\ViewAction;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
-use Filament\Tables\Columns\ToggleColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
-
-use function Symfony\Component\Clock\now;
 
 class MonitorsTable
 {
@@ -46,30 +43,31 @@ class MonitorsTable
                     ])
                     ->sortable(),
 
-                TextColumn::make('latestHeartbeat.response_time')
-                    ->label('Response Time')
+                IconColumn::make('is_active')
+                    ->label('Active')
+                    ->boolean()
+                    ->sortable(),
+
+                IconColumn::make('check_ssl_certificate')
+                    ->label('Check SSL')
+                    ->boolean()
+                    ->sortable(),
+
+                TextColumn::make('ssl_certificate_expires_at')
+                    ->label('SSL Expires At')
+                    ->date('M j, Y')
                     ->placeholder('N/A')
-                    ->sortable(query: function (Builder $query, string $direction): Builder {
-                        return $query->orderBy(
-                            Heartbeat::select('response_time')
-                                ->whereColumn('monitor_id', 'monitors.id')
-                                ->latest('checked_at')
-                                ->limit(1),
-                            $direction
-                        );
-                    })
+                    ->sortable()
+                    ->badge()
                     ->color(fn($state) => match (true) {
                         $state === null => 'gray',
-                        $state < 2000 => 'success',
-                        $state < 5000 => 'warning',
-                        default => 'danger',
+                        now()->diffInDays($state, false) < 0 => 'danger',
+                        now()->diffInDays($state, false) <= 7 => 'danger',
+                        now()->diffInDays($state, false) <= 30 => 'warning',
+                        default => 'success',
                     })
-                    ->icon(fn($state) => match (true) {
-                        $state === null => 'heroicon-m-question-mark-circle',
-                        $state < 2000 => 'heroicon-m-bolt',
-                        $state < 5000 => 'heroicon-m-clock',
-                        default => 'heroicon-m-exclamation-triangle',
-                    }),
+                    ->description(fn($state) => $state ?
+                        $state->diffForHumans() : 'Not Checked'),
 
                 TextColumn::make('check_interval_minutes')
                     ->label('Check Interval')
@@ -98,37 +96,33 @@ class MonitorsTable
                 TextColumn::make('check_interval_minutes')
                     ->label('Check Interval')
                     ->suffix(' min(s)')
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
-
-                IconColumn::make('is_active')
-                    ->label('Active')
-                    ->boolean()
                     ->sortable(),
 
-                IconColumn::make('check_ssl_certificate')
-                    ->label('Check SSL')
-                    ->boolean()
-                    ->sortable(),
 
-                TextColumn::make('ssl_certificate_expires_at')
-                    ->label('SSL Expires At')
-                    ->date('M j, Y')
+                TextColumn::make('latestHeartbeat.response_time')
+                    ->label('Response Time')
                     ->placeholder('N/A')
-                    ->sortable()
-                    ->badge()
+                    ->sortable(query: function (Builder $query, string $direction): Builder {
+                        return $query->orderBy(
+                            Heartbeat::select('response_time')
+                                ->whereColumn('monitor_id', 'monitors.id')
+                                ->latest('checked_at')
+                                ->limit(1),
+                            $direction
+                        );
+                    })
                     ->color(fn($state) => match (true) {
                         $state === null => 'gray',
-                        now()->diffInDays($state, false) < 0 => 'danger',
-                        now()->diffInDays($state, false) <= 7 => 'danger',
-                        now()->diffInDays($state, false) <= 30 => 'warning',
-                        default => 'success',
+                        $state < 2000 => 'success',
+                        $state < 5000 => 'warning',
+                        default => 'danger',
                     })
-                    ->description(
-                        fn($state) => $state ?
-                            now()->diffForHumans($state, \Carbon\CarbonInterface::DIFF_RELATIVE_TO_NOW) :
-                            'Not Checked'
-                    )->toggleable(),
+                    ->icon(fn($state) => match (true) {
+                        $state === null => 'heroicon-m-question-mark-circle',
+                        $state < 2000 => 'heroicon-m-bolt',
+                        $state < 5000 => 'heroicon-m-clock',
+                        default => 'heroicon-m-exclamation-triangle',
+                    }),
 
             ])
             ->filters([

@@ -2,11 +2,12 @@
 
 namespace App\Console\Commands;
 
+use Carbon\Carbon;
 use App\Models\Monitor;
-use App\Notifications\SslCertificateExpiresSoon;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Notification;
+use App\Notifications\SslCertificateExpiresSoon;
 
 class CheckSslCertificates extends Command
 {
@@ -17,7 +18,6 @@ class CheckSslCertificates extends Command
     {
         $monitors = Monitor::where('check_ssl_certificate', true)
             ->where('is_active', true)
-            ->whereNotNull('ssl_certificate_expires_at')
             ->get();
 
         foreach ($monitors as $monitor) {
@@ -53,7 +53,9 @@ class CheckSslCertificates extends Command
             );
 
             if (!$client) {
-                Log::warning("Could not connect to {$url} for SSL check: $errstr ($errno)");
+                Log::warning(
+                    "Could not connect to {$url} for SSL check: $errstr ($errno)"
+                );
                 return;
             }
 
@@ -62,13 +64,13 @@ class CheckSslCertificates extends Command
             $certInfo = openssl_x509_parse($cert);
 
             if (isset($certInfo['validTo_time_t'])) {
-                $validTo = \Carbon\Carbon::createFromTimestamp($certInfo['validTo_time_t']);
+                $validTo = Carbon::createFromTimestamp($certInfo['validTo_time_t']);
                 $monitor->update(['ssl_certificate_expires_at' => $validTo]);
 
                 $daysRemaining = now()->diffInDays($validTo, false);
 
                 // Notify if expiring in 7, 3 or 1 day(s)
-                if ($daysRemaining <= 7 && $daysRemaining > 0) {
+                if ($monitor->check_ssl_certificate && $daysRemaining <= 7 && $daysRemaining > 0) {
                     // Check if we haven't already notified today
                     Notification::route('telegram', config('services.telegram.chat_id'))
                         ->notify(new SslCertificateExpiresSoon($monitor, (int)$daysRemaining));

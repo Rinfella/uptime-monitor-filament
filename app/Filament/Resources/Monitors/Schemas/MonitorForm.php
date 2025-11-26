@@ -4,8 +4,10 @@ namespace App\Filament\Resources\Monitors\Schemas;
 
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
+use Filament\Infolists\Components\TextEntry;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
+use Carbon\Carbon;
 
 class MonitorForm
 {
@@ -31,7 +33,7 @@ class MonitorForm
                     ])
                     ->columns(2),
 
-                Section::make('Check Settings')
+                Section::make('Interval Settings')
                     ->schema([
                         TextInput::make('check_interval_minutes')
                             ->label('Check Interval (minutes)')
@@ -67,14 +69,22 @@ class MonitorForm
                             ->default(true)
                             ->label('Notify on Recovery'),
 
+                    ])
+                    ->columns(1),
+
+                Section::make('SSL Settings')
+                    ->schema([
                         Toggle::make('check_ssl_certificate')
                             ->default(true)
-                            ->label('Check SSL Cert. expiry')
-                            ->helperText('Notify about SSL certificate expiry.')
-                            ->columnSpanFull(),
+                            ->label('Notify SSL Cert. expiry'),
 
+                        TextEntry::make('ssl_certificate_expires_at')
+                            ->label('SSL Certificate Expiry Date')
+                            ->formatStateUsing(fn($state) => $state ?
+                                Carbon::parse($state)->toDayDateTimeString() : 'N/A')
+                            ->disabled(),
                     ])
-                    ->columns(4),
+                    ->columns(2)
 
             ]);
     }

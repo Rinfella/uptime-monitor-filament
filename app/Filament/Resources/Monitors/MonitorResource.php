@@ -20,7 +20,7 @@ class MonitorResource extends Resource
 {
     protected static ?string $model = Monitor::class;
 
-    protected static string|BackedEnum|null $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static string|BackedEnum|null $navigationIcon = 'heroicon-o-server-stack';
 
     protected static ?string $recordTitleAttribute = 'Monitor';
     protected static ?string $navigationLabel = 'Monitors';
