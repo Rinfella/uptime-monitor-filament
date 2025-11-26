@@ -1,12 +1,5 @@
 <p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/Laravel/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Packagist Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dm/laravel/framework" alt="Packagist Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
-
 # Uptime Monitor
 
 A robust and easy-to-use uptime monitoring application built with Laravel and Filament. This application allows you to keep track of your websites and services, ensuring they are always online and performing as expected.
@@ -28,43 +21,61 @@ A robust and easy-to-use uptime monitoring application built with Laravel and Fi
 ## Installation
 
 1.  Clone the repository:
+
     ```bash
     git clone [repository_url]
     cd uptime-monitor
     ```
+
 2.  Install Composer dependencies:
+
     ```bash
     composer install
     ```
+
 3.  Install NPM dependencies and build assets:
+
     ```bash
     npm install
     npm run dev
     ```
+
 4.  Copy `.env.example` to `.env` and configure your database and Telegram settings:
+
     ```bash
     cp .env.example .env
     php artisan key:generate
     ```
+
     Make sure to set `TELEGRAM_BOT_TOKEN` and `TELEGRAM_CHAT_ID`.
+
 5.  Run database migrations and seed (optional):
+
     ```bash
     php artisan migrate --seed
     ```
+
 6.  Start the development server:
+    
     ```bash
     php artisan serve
     ```
+
 7.  Run the queue worker (for notifications):
+
     ```bash
     php artisan queue:work
     ```
+
     (Alternatively, set `QUEUE_CONNECTION=sync` in your `.env` for synchronous processing in development).
+
 8.  Schedule the heartbeat checks:
     Add the following to your server's cron jobs:
+
     ```bash
-    * * * * * cd /path-to-your-project && php artisan schedule:run >> /dev/null 2>&1
+    * * * * * php /path/to/your/project/artisan schedule:run >> /dev/null 2>&1
     ```
+
 
 ## Usage
 
@@ -72,18 +83,16 @@ Access the Filament admin panel by navigating to `/admin` in your browser. From 
 
 ## TODO (or Milestone)
 
-- To make the Heartbeats data appear inside each monitors single view page instead maybe instead of making another page or menu for it.
-- Modify default dashboard to show Monitor and Heartbeat stats.
-- Add more notification channels (e.g., email, Slack).
-- Implement user authentication and roles for multi-user support.
-- Monitor not only HTTP(S) but also other protocols (e.g., ping, TCP).
-- Make the protocols selectable and create prefixes for the heartbeat names (e.g., `http://` or `smb://`).
+-[ ] To make the Heartbeats data appear inside each monitors single view page.
+-[ ] Modify default dashboard to show Monitor and Heartbeat stats.
+-[ ] Add more notification channels (e.g., email, Slack).
+-[ ] Implement advanced reporting and analytics for monitor performance.
+-[ ] Check monitors for SSL expiry and notify before expiration.
+-[ ] Implement user authentication and roles for multi-user support.
+-[ ] Monitor not only HTTP(S) but also other protocols (e.g., DB, redis, ping, TCP).
+-[ ] Make the protocols selectable and create prefixes for the heartbeat names (e.g., `http://`, `sftp://` or `smb://`).
 
-
-## Contributing
-
-Feel free to contribute to the development of this uptime monitor.
 
 ## License
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+The Laravel framework is open-sourced and licensed under the [MIT license](https://opensource.org/licenses/MIT).

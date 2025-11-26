@@ -26,8 +26,6 @@ class UptimeCheckSuccess extends Notification
 
     /**
      * Get the notification's delivery channels.
-     *
-     * @return array<int, string>
      */
     public function via($notifiable): array
     {
@@ -35,7 +33,7 @@ class UptimeCheckSuccess extends Notification
     }
 
     /**
-     * Get the mail representation of the notification.
+     * Get the Telegram representation of the notification.
      */
     public function toTelegram($notifiable): TelegramMessage
     {

@@ -22,6 +22,8 @@ class Monitor extends Model
         'consecutive_failures',
         'max_consecutive_failures',
         'is_active',
+        'check_ssl_certificate',
+        'ssl_certificate_expires_at',
     ];
 
     protected $casts = [
@@ -31,6 +33,8 @@ class Monitor extends Model
         'check_interval_minutes' => 'integer',
         'consecutive_failures' => 'integer',
         'max_consecutive_failures' => 'integer',
+        'check_ssl_certificate' => 'boolean',
+        'ssl_certificate_expires_at' => 'datetime',
     ];
 
     protected $attributes = [
@@ -41,6 +45,7 @@ class Monitor extends Model
         'check_interval_minutes' => 2,
         'max_consecutive_failures' => 3,
         'consecutive_failures' => 0,
+        'check_ssl_certificate' => true,
     ];
 
 

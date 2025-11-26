@@ -20,6 +20,8 @@ return new class extends Migration
             $table->integer('max_consecutive_failures')->default(3);
             $table->integer('consecutive_failures')->default(0);
             $table->enum('status', ['up', 'down', 'unknown'])->default('unknown');
+            $table->boolean('check_ssl_certificate')->default(true);
+            $table->timestamp('ssl_certificate_expires_at')->nullable();
             $table->boolean('notify_on_failure')->default(true);
             $table->boolean('notify_on_recovery')->default(true);
             $table->timestamps();

@@ -1,5 +1,6 @@
 <?php
 
+use Illuminate\Console\Scheduling\Schedule as SchedulingSchedule;
 use Illuminate\Support\Facades\Schedule;
 
 Schedule::command('heartbeats:check')
@@ -11,4 +12,9 @@ Schedule::command('heartbeats:cleanup --days=60')
     ->weekly()
     ->sundays()
     ->at('03:00')
+    ->runInBackground();
+
+Schedule::command('check:certificates')
+    ->daily()
+    ->at('08:00')
     ->runInBackground();

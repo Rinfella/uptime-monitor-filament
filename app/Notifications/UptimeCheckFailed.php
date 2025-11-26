@@ -29,7 +29,7 @@ class UptimeCheckFailed extends Notification
     }
 
     /**
-     * Get the mail representation of the notification.
+     * Get the Telegram representation of the notification.
      */
     public function toTelegram($notifiable): TelegramMessage
     {

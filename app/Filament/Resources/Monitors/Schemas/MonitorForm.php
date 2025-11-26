@@ -55,6 +55,10 @@ class MonitorForm
 
                 Section::make('Notification Settings')
                     ->schema([
+                        Toggle::make('is_active')
+                            ->default(true)
+                            ->label('Active'),
+
                         Toggle::make('notify_on_failure')
                             ->default(true)
                             ->label('Notify on Failure'),
@@ -63,11 +67,14 @@ class MonitorForm
                             ->default(true)
                             ->label('Notify on Recovery'),
 
-                        Toggle::make('is_active')
+                        Toggle::make('check_ssl_certificate')
                             ->default(true)
-                            ->label('Active'),
+                            ->label('Check SSL Cert. expiry')
+                            ->helperText('Notify about SSL certificate expiry.')
+                            ->columnSpanFull(),
+
                     ])
-                    ->columns(3),
+                    ->columns(4),
 
             ]);
     }

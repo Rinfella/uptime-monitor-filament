@@ -10,8 +10,11 @@ use Filament\Actions\EditAction;
 use Filament\Actions\ViewAction;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Columns\ToggleColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
+
+use function Symfony\Component\Clock\now;
 
 class MonitorsTable
 {
@@ -98,22 +101,34 @@ class MonitorsTable
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
 
-                TextColumn::make('consecutive_failures')
-                    ->label('Consecutive Failures')
-                    ->sortable()
-                    ->badge()
-                    ->color(fn($state) => match (true) {
-                        $state === 0 => 'success',
-                        $state > 0 && $state < 3 => 'warning',
-                        $state >= 3 => 'danger',
-                        default => 'gray',
-                    })
-                    ->toggleable(isToggledHiddenByDefault: true),
-
                 IconColumn::make('is_active')
                     ->label('Active')
                     ->boolean()
                     ->sortable(),
+
+                IconColumn::make('check_ssl_certificate')
+                    ->label('Check SSL')
+                    ->boolean()
+                    ->sortable(),
+
+                TextColumn::make('ssl_certificate_expires_at')
+                    ->label('SSL Expires At')
+                    ->date('M j, Y')
+                    ->placeholder('N/A')
+                    ->sortable()
+                    ->badge()
+                    ->color(fn($state) => match (true) {
+                        $state === null => 'gray',
+                        now()->diffInDays($state, false) < 0 => 'danger',
+                        now()->diffInDays($state, false) <= 7 => 'danger',
+                        now()->diffInDays($state, false) <= 30 => 'warning',
+                        default => 'success',
+                    })
+                    ->description(
+                        fn($state) => $state ?
+                            now()->diffForHumans($state, \Carbon\CarbonInterface::DIFF_RELATIVE_TO_NOW) :
+                            'Not Checked'
+                    )->toggleable(),
 
             ])
             ->filters([
