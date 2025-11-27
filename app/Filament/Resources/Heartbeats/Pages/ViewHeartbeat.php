@@ -3,7 +3,6 @@
 namespace App\Filament\Resources\Heartbeats\Pages;
 
 use App\Filament\Resources\Heartbeats\HeartbeatResource;
-use Filament\Actions\EditAction;
 use Filament\Resources\Pages\ViewRecord;
 
 class ViewHeartbeat extends ViewRecord

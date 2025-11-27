@@ -22,7 +22,7 @@ class HeartbeatCheckService
         try {
             Log::info("Checking uptime for: {$monitor->name} ({$monitor->url})");
 
-            $response = Http::timeout(config('services.uptime-monitor.http_timeout', 10))
+            $response = Http::timeout(config('services.uptime-monitor.http_timeout', 20))
                 ->get($monitor->url);
 
             $endTime = microtime(true);

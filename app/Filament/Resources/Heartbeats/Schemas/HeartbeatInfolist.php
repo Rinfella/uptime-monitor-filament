@@ -14,7 +14,14 @@ class HeartbeatInfolist
                 TextEntry::make('monitor.name')
                     ->label('Monitor'),
                 TextEntry::make('status')
-                    ->badge(),
+                    ->label('Status')
+                    ->badge()
+                    ->color(fn(string $state): string => match ($state) {
+                        'up' => 'success',
+                        'down' => 'danger',
+                        'unknown' => 'warning',
+                        default => 'gray',
+                    }),
                 TextEntry::make('http_status_code')
                     ->numeric()
                     ->placeholder('-'),

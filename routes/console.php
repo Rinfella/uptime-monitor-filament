@@ -1,6 +1,5 @@
 <?php
 
-use Illuminate\Console\Scheduling\Schedule as SchedulingSchedule;
 use Illuminate\Support\Facades\Schedule;
 
 Schedule::command('heartbeats:check')
@@ -8,7 +7,7 @@ Schedule::command('heartbeats:check')
     ->withoutOverlapping()
     ->runInBackground();
 
-Schedule::command('heartbeats:cleanup --days=60')
+Schedule::command('heartbeats:cleanup --days=14')
     ->weekly()
     ->sundays()
     ->at('03:00')
