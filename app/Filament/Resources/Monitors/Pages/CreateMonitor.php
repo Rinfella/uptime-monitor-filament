@@ -12,7 +12,7 @@ class CreateMonitor extends CreateRecord
 
     protected function afterCreate(): void
     {
-        Artisan::queue('heartbeat:check', [
+        Artisan::queue('heartbeats:check', [
             '--monitor_id' => $this->record->id,
         ]);
 

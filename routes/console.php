@@ -15,5 +15,4 @@ Schedule::command('heartbeats:cleanup --days=14')
 
 Schedule::command('check:certificates')
     ->daily()
-    ->at('08:00')
     ->runInBackground();
