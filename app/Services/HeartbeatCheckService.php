@@ -28,8 +28,8 @@ class HeartbeatCheckService
             $endTime = microtime(true);
             $responseTime = round(($endTime - $startTime) * 1000);
 
-            $isUp = $response->successful();
             $statusCode = $response->status();
+            $isUp = $statusCode >= 200 && $statusCode < 400;
 
             $result = [
                 'is_up' => $isUp,
@@ -49,50 +49,31 @@ class HeartbeatCheckService
 
             return $result;
         } catch (ConnectionException $e) {
-            $endTime = microtime(true);
-            $responseTime = round(($endTime - $startTime) * 1000);
-
-            $result = [
-                'is_up' => false,
-                'response_time' => $responseTime,
-                'status_code' => null,
-                'error_message' => 'Connection failed: ' . $e->getMessage(),
-            ];
-
-            $this->handleFailedCheck($monitor, $result, $isInitialCheck);
-            $this->recordCheckHistory($monitor, $result);
-            return $result;
+            return $this->handleException($monitor, $e, $startTime, 'Connection failure..', $isInitialCheck);
         } catch (RequestException $e) {
-            $endTime = microtime(true);
-            $responseTime = round(($endTime - $startTime) * 1000);
-
-            $result = [
-                'is_up' => false,
-                'response_time' => $responseTime,
-                'status_code' => null,
-                'error_message' => 'Request error: ' . $e->getMessage(),
-            ];
-
-            $this->handleFailedCheck($monitor, $result, $isInitialCheck);
-            $this->recordCheckHistory($monitor, $result);
-            return $result;
+            return $this->handleException($monitor, $e, $startTime, 'Request error..', $isInitialCheck);
         } catch (\Exception $e) {
             Log::error("Unexpected error checking monitor {$monitor->name}: " . $e->getMessage());
-
-            $endTime = microtime(true);
-            $responseTime = round(($endTime - $startTime) * 1000);
-
-            $result = [
-                'is_up' => false,
-                'response_time' => $responseTime,
-                'status_code' => null,
-                'error_message' => 'Unexpected error: ' . $e->getMessage(),
-            ];
-
-            $this->handleFailedCheck($monitor, $result, $isInitialCheck);
-            $this->recordCheckHistory($monitor, $result);
-            return $result;
+            return $this->handleException($monitor, $e, $startTime, 'Unexpected error..', $isInitialCheck);
         }
+    }
+
+    private function handleException(Monitor $monitor, \Exception $e, float $startTime, string $errorPrefix, bool $isInitialCheck): array
+    {
+        $endTime = microtime(true);
+        $responseTime = round(($endTime - $startTime) * 1000);
+
+        $result = [
+            'is_up' => false,
+            'response_time' => $responseTime,
+            'status_code' => null,
+            'error_message' => $errorPrefix . ': ' . $e->getMessage(),
+        ];
+
+        $this->handleFailedCheck($monitor, $result, $isInitialCheck);
+        $this->recordCheckHistory($monitor, $result);
+
+        return $result;
     }
 
     private function handleSuccessfulCheck(Monitor $monitor, array $result, bool $isInitialCheck): void

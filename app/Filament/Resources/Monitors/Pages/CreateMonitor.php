@@ -3,8 +3,8 @@
 namespace App\Filament\Resources\Monitors\Pages;
 
 use App\Filament\Resources\Monitors\MonitorResource;
-use App\Services\HeartbeatCheckService;
 use Filament\Resources\Pages\CreateRecord;
+use Illuminate\Support\Facades\Artisan;
 
 class CreateMonitor extends CreateRecord
 {
@@ -12,7 +12,14 @@ class CreateMonitor extends CreateRecord
 
     protected function afterCreate(): void
     {
-        $heartbeatCheckService = app(HeartbeatCheckService::class);
-        $heartbeatCheckService->checkMonitor($this->record);
+        Artisan::queue('heartbeat:check', [
+            '--monitor_id' => $this->record->id,
+        ]);
+
+        if ($this->record->check_ssl_certificate) {
+            Artisan::queue('check:certificates', [
+                '--monitor_id' => $this->record->id,
+            ]);
+        }
     }
 }
