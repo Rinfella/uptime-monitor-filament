@@ -7,7 +7,7 @@ Schedule::command('heartbeats:check')
     ->withoutOverlapping()
     ->runInBackground();
 
-Schedule::command('heartbeats:cleanup --days=14')
+Schedule::command('heartbeats:cleanup --days=7')
     ->weekly()
     ->sundays()
     ->at('03:00')
