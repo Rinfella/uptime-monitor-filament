@@ -16,8 +16,7 @@ class SslCertificateExpiresSoon extends Notification
      * Create a new notification instance.
      */
     public function __construct(
-        public Monitor $monitor,
-        public int $daysRemaining,
+        public Monitor $monitor, public int $daysRemaining,
     ) {}
 
     /**
