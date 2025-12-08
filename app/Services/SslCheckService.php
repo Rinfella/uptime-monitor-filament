@@ -3,7 +3,8 @@
 namespace App\Services;
 
 use App\Models\Monitor;
-use Carbon\Carbon; use Illuminate\Support\Facades\Log;
+use Carbon\Carbon;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Notification;
 use App\Notifications\SslCertificateExpiresSoon;
 
@@ -42,7 +43,7 @@ class SslCheckService
             $cert = $params["options"]["ssl"]["peer_certificate"];
             $certInfo = openssl_x509_parse($cert);
 
-            if (isset($certinfo['validTo_time_t'])) {
+            if (isset($certInfo['validTo_time_t'])) {
                 $validTo = Carbon::createFromTimestamp($certInfo['validTo_time_t']);
                 $monitor->update(['ssl_certificate_expires_at' => $validTo]);
 
